@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import type { ModelCallResult } from "@/lib/providers/openaiCompatible";
 
-const MODEL = "gemini-1.5-flash";
+const MODEL = "gemini-2.5-flash";
 
 export async function callGemini(prompt: string): Promise<ModelCallResult> {
   const apiKey = process.env.GOOGLE_API_KEY;

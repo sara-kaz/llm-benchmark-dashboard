@@ -23,7 +23,7 @@ export const MODEL_META: Record<ModelMeta["id"], ModelMeta> = {
     id: "gemini",
     label: "Gemini",
     vendor: "Google",
-    modelName: "gemini-1.5-flash",
+    modelName: "gemini-2.5-flash",
     color: "#4285f4",
     accentClass: "model-gemini",
   },
