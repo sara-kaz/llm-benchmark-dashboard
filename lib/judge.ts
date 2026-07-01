@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { extractJson } from "@/lib/json";
+import { withRetry } from "@/lib/retry";
 
 const JUDGE_MODEL = "claude-sonnet-4-5-20250929";
 
@@ -44,11 +45,13 @@ Score the response on two axes, each from 1 (very poor) to 10 (excellent):
 Respond with ONLY a JSON object, no other text, in exactly this shape:
 {"quality": <number>, "reasoning": <number>, "rationale": "<one sentence>"}`;
 
-  const message = await client.messages.create({
-    model: JUDGE_MODEL,
-    max_tokens: 200,
-    messages: [{ role: "user", content: rubricPrompt }],
-  });
+  const message = await withRetry(() =>
+    client.messages.create({
+      model: JUDGE_MODEL,
+      max_tokens: 200,
+      messages: [{ role: "user", content: rubricPrompt }],
+    }),
+  );
 
   const text = message.content
     .filter((block): block is Anthropic.TextBlock => block.type === "text")

@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import type { ModelCallResult } from "@/lib/providers/openaiCompatible";
+import { withRetry } from "@/lib/retry";
 
 const MODEL = "gemini-2.5-flash";
 
@@ -11,7 +12,7 @@ export async function callGemini(prompt: string): Promise<ModelCallResult> {
   const client = new GoogleGenerativeAI(apiKey);
   const model = client.getGenerativeModel({ model: MODEL });
   const start = performance.now();
-  const result = await model.generateContent(prompt);
+  const result = await withRetry(() => model.generateContent(prompt));
   const latencyMs = performance.now() - start;
   const response = result.response;
   return {

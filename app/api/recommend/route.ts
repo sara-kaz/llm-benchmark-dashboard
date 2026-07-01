@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import Anthropic from "@anthropic-ai/sdk";
 import { extractJson } from "@/lib/json";
+import { withRetry } from "@/lib/retry";
 import { heuristicWeights, scoreModels } from "@/lib/recommend";
 import { SEED_BENCHMARKS, MODEL_META } from "@/data/seed-benchmarks";
 import type { BenchmarkMetrics, CriteriaWeights, ModelId, RecommendationResult } from "@/lib/types";
@@ -40,11 +41,13 @@ Assign an importance weight from 0 to 1 for each of these four criteria, reflect
 Respond with ONLY JSON, no other text, in exactly this shape:
 {"speed": <0-1>, "cost": <0-1>, "quality": <0-1>, "reasoning": <0-1>, "summary": "<one sentence on what this project needs most and why>"}`;
 
-  const message = await client.messages.create({
-    model: "claude-sonnet-4-5-20250929",
-    max_tokens: 200,
-    messages: [{ role: "user", content: prompt }],
-  });
+  const message = await withRetry(() =>
+    client.messages.create({
+      model: "claude-sonnet-4-5-20250929",
+      max_tokens: 200,
+      messages: [{ role: "user", content: prompt }],
+    }),
+  );
 
   const text = message.content
     .filter((block): block is Anthropic.TextBlock => block.type === "text")

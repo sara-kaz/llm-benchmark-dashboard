@@ -5,6 +5,7 @@ import { SEED_BENCHMARKS } from "@/data/seed-benchmarks";
 import { PROVIDER_REGISTRY } from "@/lib/providers";
 import { judgeResponse } from "@/lib/judge";
 import { calcCost } from "@/lib/pricing";
+import { friendlyErrorMessage } from "@/lib/errorMessage";
 import type { LiveRunResult, ModelId, PromptResult } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -75,7 +76,7 @@ export async function POST(request: Request) {
           cost: 0,
           quality: 0,
           reasoning: 0,
-          error: err instanceof Error ? err.message : "Unknown error",
+          error: friendlyErrorMessage(err),
         };
       }
     }),

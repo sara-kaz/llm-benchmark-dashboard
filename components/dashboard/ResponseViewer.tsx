@@ -50,14 +50,12 @@ export function ResponseViewer({ promptResultsByModel }: ResponseViewerProps) {
                             {r.category}
                           </Badge>
                           {r.error ? (
-                            <Badge variant="destructive">error: {r.error}</Badge>
+                            <span className="text-xs text-destructive">{r.error}</span>
                           ) : (
-                            <>
-                              <span className="text-xs text-muted-foreground font-mono">
-                                {formatLatency(r.latencyMs)} · {formatCost(r.cost)} · Q{formatScore(r.quality)} / R
-                                {formatScore(r.reasoning)}
-                              </span>
-                            </>
+                            <span className="text-xs text-muted-foreground font-mono">
+                              {formatLatency(r.latencyMs)} · {formatCost(r.cost)} · Q{formatScore(r.quality)} / R
+                              {formatScore(r.reasoning)}
+                            </span>
                           )}
                         </div>
                         {r.error ? null : (
