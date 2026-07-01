@@ -13,6 +13,12 @@
 
 </div>
 
+## Demo
+
+<video src="public/demo.mp4" controls width="100%"></video>
+
+*(If the player above doesn't load, [watch/download the video directly](public/demo.mp4).)*
+
 ## What this is
 
 A dashboard for comparing frontier LLM APIs that's actually useful, not just a static leaderboard:
