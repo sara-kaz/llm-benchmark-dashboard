@@ -15,9 +15,7 @@
 
 ## Demo
 
-<video src="public/demo.mp4" controls width="100%"></video>
-
-*(If the player above doesn't load, [watch/download the video directly](public/demo.mp4).)*
+[![Watch the demo video](https://img.shields.io/badge/▶-Watch_the_Demo_Video-red?style=for-the-badge)](https://drive.google.com/file/d/1a-Dmxk95OOqPRPn8RlSARE7rESJof3jE/view?usp=sharing)
 
 ## What this is
 
