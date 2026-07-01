@@ -1,36 +1,102 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<div align="center">
 
-## Getting Started
+# LLM Benchmark Dashboard
 
-First, run the development server:
+**Compare GPT, Claude, Gemini, DeepSeek, and Llama on speed, cost, quality, and reasoning — then get a data-grounded recommendation for which one fits *your* project.**
+
+[![Next.js](https://img.shields.io/badge/Next.js-000000?style=flat&logo=nextdotjs&logoColor=white)](https://nextjs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=flat&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+<img src="public/screenshot.png" alt="LLM Benchmark Dashboard screenshot" width="100%" />
+
+</div>
+
+## What this is
+
+A dashboard for comparing frontier LLM APIs that's actually useful, not just a static leaderboard:
+
+- 📊 **Always populated** — loads instantly with curated reference numbers for all 5 models, no setup required
+- ⚡ **Real live runs** — a "Run Live Comparison" button optionally fires real requests at each provider's API, measures true latency and token cost, and scores every response with an LLM judge
+- 🧭 **Model recommendation engine** — describe your project in plain English and get a ranked recommendation, weighted by what *that* project actually needs and grounded in the benchmark numbers on screen
+- 🛡️ **Never breaks** — any model missing an API key gracefully falls back to reference data instead of erroring out, so the dashboard always looks complete (great for demos)
+
+## Features
+
+| | |
+|---|---|
+| **Radar comparison** | Normalized 0–100 view of speed, cost, quality, and reasoning across all 5 models at once |
+| **Cost & speed charts** | Blended $/1M token pricing and tokens/sec throughput, bar-charted per model |
+| **Sortable leaderboard** | Click any column to re-rank models by that metric |
+| **Live comparison run** | 5-prompt fixed eval suite (coding, math, reasoning, creative writing, knowledge Q&A) run identically against every model |
+| **LLM-judge scoring** | Claude grades every live response 1–10 on quality and reasoning with a written rationale |
+| **Response viewer** | Read each model's actual output side-by-side, not just the score |
+| **"Which model should I use?"** | Type a project description → an LLM (or a keyword-based fallback with zero API keys) infers what matters most for it, then ranks all 5 models by a weighted, data-backed score |
+
+## Quick start
 
 ```bash
+git clone <this-repo>
+cd llm-benchmark-dashboard
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000). Everything works immediately — reference data, charts, leaderboard, and the recommendation engine (using its keyword-based fallback) all run with **zero configuration**.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Enabling live API calls
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Copy the env template and add whichever keys you have — you don't need all five, and the app degrades gracefully around whatever's missing:
 
-## Learn More
+```bash
+cp .env.local.example .env.local
+```
 
-To learn more about Next.js, take a look at the following resources:
+| Variable | Powers | Get a key |
+|---|---|---|
+| `OPENAI_API_KEY` | GPT | [platform.openai.com/api-keys](https://platform.openai.com/api-keys) |
+| `ANTHROPIC_API_KEY` | Claude, **plus** the LLM judge and the recommendation engine — worth setting even if you skip Claude itself | [console.anthropic.com/settings/keys](https://console.anthropic.com/settings/keys) |
+| `GOOGLE_API_KEY` | Gemini | [aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey) |
+| `DEEPSEEK_API_KEY` | DeepSeek | [platform.deepseek.com/api_keys](https://platform.deepseek.com/api_keys) |
+| `GROQ_API_KEY` | Llama (served via Groq) | [console.groq.com/keys](https://console.groq.com/keys) |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Restart `npm run dev` after editing `.env.local`, then hit **Run Live Comparison**. Any model without a key (or whose judge call fails) automatically falls back to reference numbers, marked with a "Reference" badge instead of "Live" — the dashboard never breaks, it just tells you what's live and what isn't.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## How the recommendation engine works
 
-## Deploy on Vercel
+1. You describe your project in the text box (e.g. *"a real-time customer support chatbot, tight startup budget"*).
+2. If `ANTHROPIC_API_KEY` is set, Claude reads the description and assigns importance weights (0–1) to speed, cost, quality, and reasoning for that specific project — e.g. a latency-sensitive chatbot weights speed and cost highly, a compliance-heavy analysis tool weights quality and reasoning highly.
+3. Without a key, a keyword-based heuristic (`lib/recommend.ts`) infers the same weights from the description, so the feature still works with zero setup.
+4. Those weights are combined with the **actual benchmark numbers currently on screen** (live results if you've run a comparison, reference data otherwise) into a weighted composite score per model.
+5. The top model is recommended with a rationale that cites real numbers — throughput, cost, quality/reasoning scores — not just a name.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Project structure
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+app/
+  page.tsx                       dashboard page
+  api/run-comparison/route.ts    live per-model benchmark run
+  api/recommend/route.ts         project → weighted model recommendation
+components/dashboard/            all dashboard UI (cards, charts, table, run panel, recommendation panel, response viewer)
+lib/
+  providers/                     provider adapters — OpenAI-compatible (OpenAI/DeepSeek/Groq), Anthropic, Gemini
+  judge.ts                       LLM-judge quality/reasoning scoring
+  recommend.ts                   heuristic weighting + weighted model scoring
+  pricing.ts                     $/1M token cost calculation
+data/
+  seed-benchmarks.ts             reference data + model metadata (colors, vendor, etc.)
+  eval-suite.ts                  fixed prompts used for live runs
+```
+
+DeepSeek and Llama (via Groq) are OpenAI-compatible APIs, so they reuse the `openai` SDK pointed at a different `baseURL` (`lib/providers/openaiCompatible.ts`) instead of duplicating client code.
+
+## Deploying
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new)
+
+Push this repo to GitHub and import it on [Vercel](https://vercel.com/new). Add the same environment variables from `.env.local.example` in the project's settings to enable live comparisons in production — the dashboard works fine with none of them set too.
+
+## License
+
+[MIT](LICENSE)
