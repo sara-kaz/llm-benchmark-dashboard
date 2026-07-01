@@ -36,6 +36,8 @@ A dashboard for comparing frontier LLM APIs that's actually useful, not just a s
 
 ## Quick start
 
+Runs entirely on your machine — no Vercel account, no cloud setup, no deployment required:
+
 ```bash
 git clone <this-repo>
 cd llm-benchmark-dashboard
@@ -62,6 +64,17 @@ cp .env.local.example .env.local
 | `GROQ_API_KEY` | Llama (served via Groq) | [console.groq.com/keys](https://console.groq.com/keys) |
 
 Restart `npm run dev` after editing `.env.local`, then hit **Run Live Comparison**. Any model without a key (or whose judge call fails) automatically falls back to reference numbers, marked with a "Reference" badge instead of "Live" — the dashboard never breaks, it just tells you what's live and what isn't.
+
+## Running it locally in production mode
+
+`npm run dev` is fine for normal use, but if you want the exact build that would run in production (faster, no dev overlay, no hot-reload flicker — useful for demos or recordings), build it once and start it instead:
+
+```bash
+npm run build
+npm run start
+```
+
+This still serves on [http://localhost:3000](http://localhost:3000) and reads the same `.env.local` — it's just the production bundle instead of the dev server. No Vercel or any external service involved either way; both commands run 100% locally.
 
 ## How the recommendation engine works
 
@@ -91,11 +104,15 @@ data/
 
 DeepSeek and Llama (via Groq) are OpenAI-compatible APIs, so they reuse the `openai` SDK pointed at a different `baseURL` (`lib/providers/openaiCompatible.ts`) instead of duplicating client code.
 
-## Deploying
+## Deploying (optional)
+
+You don't need to deploy anything — the sections above run the full app locally. Deploy only if you want a public URL to share.
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new)
 
 Push this repo to GitHub and import it on [Vercel](https://vercel.com/new). Add the same environment variables from `.env.local.example` in the project's settings to enable live comparisons in production — the dashboard works fine with none of them set too.
+
+Not using Vercel? Any host that runs a Node.js server works the same way: `npm run build` then `npm run start`, with the env vars from `.env.local.example` set however that platform expects (e.g. Railway, Render, Fly.io, or your own server).
 
 ## License
 
