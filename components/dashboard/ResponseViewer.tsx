@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { MarkdownResponse } from "@/components/dashboard/MarkdownResponse";
 import { MODEL_META } from "@/data/seed-benchmarks";
 import type { ModelId, PromptResult } from "@/lib/types";
 import { formatCost, formatLatency, formatScore } from "@/lib/format";
@@ -61,7 +62,7 @@ export function ResponseViewer({ promptResultsByModel }: ResponseViewerProps) {
                         </div>
                         {r.error ? null : (
                           <>
-                            <p className="whitespace-pre-wrap text-sm text-foreground/90">{r.response}</p>
+                            <MarkdownResponse>{r.response}</MarkdownResponse>
                             {r.judgeRationale ? (
                               <p className="mt-2 text-xs italic text-muted-foreground">
                                 Judge: {r.judgeRationale}
